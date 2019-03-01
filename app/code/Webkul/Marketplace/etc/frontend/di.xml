@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_Marketplace
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Url\SecurityInfo">
+        <arguments>
+            <argument name="secureUrlList" xsi:type="array">
+                <item name="marketplace" xsi:type="string">/marketplace/mui</item>
+                <item name="marketplace_product" xsi:type="string">/marketplace/product</item>
+                <item name="marketplace_order" xsi:type="string">/marketplace/order</item>
+                <item name="marketplace_transaction" xsi:type="string">/marketplace/transaction</item>
+                <item name="marketplace_account" xsi:type="string">/marketplace/account</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="\Magento\Catalog\Model\ResourceModel\Product\Collection">
+        <plugin name="Webkul_Marketplace::afterIsEnabledFlat"
+                type="Webkul\Marketplace\Model\Plugin\ResourceModel\Product\Collection"
+                sortOrder="12" />
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="marketplace_transactions_listing_data_source" xsi:type="string">Webkul\Marketplace\Model\ResourceModel\Sellertransaction\FrontGrid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Webkul\Marketplace\Model\ResourceModel\Sellertransaction\FrontGrid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">marketplace_sellertransaction</argument>
+            <argument name="eventPrefix" xsi:type="string">marketplace_transaction_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">transaction_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Webkul\Marketplace\Model\ResourceModel\Sellertransaction</argument>
+        </arguments>
+    </type>
+</config>

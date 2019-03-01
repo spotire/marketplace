@@ -1,0 +1,323 @@
+<?php  
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_Marketplace
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+
+// @codingStandardsIgnoreFile
+
+$helper = $this->helper('Webkul\Marketplace\Helper\Data');
+$helperOrders = $this->helper('Webkul\Marketplace\Helper\Orders');
+$partner = $block->getProfileDetail();
+if ($partner['shop_url']) {
+    $bannerpic = $partner->getBannerPic()!=''?$partner->getBannerPic():"banner-image.png";
+    $bannerpic = $helper->getMediaUrl().'avatar/'.$bannerpic;
+
+    list($bwidth, $bheight) = getimagesize($bannerpic);
+    $bcalculatedHeight = 6.5;
+    $bcalculatedWidth = ($bwidth / $bheight) * $bcalculatedHeight;
+    
+    $logo = $partner->getLogoPic()!=''?$partner->getLogoPic():"noimage.png";
+    $logo = $helper->getMediaUrl().'avatar/'.$logo;
+
+    list($width, $height) = getimagesize($logo);
+    $calculatedHeight = 120;
+    $calculatedWidth = ($width / $height) * $calculatedHeight;
+
+    $shopUrl = $block->escapeHtml($partner['shop_url']);
+    $shoptitle = $block->escapeHtml($partner->getShopTitle());
+    if (!$shoptitle) {
+        $shoptitle = $shopUrl;
+    }
+    $sellerId = $partner->getSellerId();
+    $locsearch = $block->escapeHtml($partner['company_locality']);
+    $sellerProductCount = $helper->getSellerProCount($sellerId);
+    $captchenable = $helper->getCaptchaEnable();
+    ?>
+    <style>
+        .wk-mp-collection-seller-title-container {
+            padding-left: calc(2.5% + <?php echo $calculatedWidth ?>px);
+        }
+    </style>
+    <div class="wk-mp-banner" style="">
+        <img src="<?php echo $bannerpic; ?>">        
+    </div>
+    <div class="wk-mp-collection-header-box">
+        <div class="wk-mp-collection-seller-title-container">
+            <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/profile/shop/'.$shopUrl);?>" >
+                <img class="wk-mp-collection-logo" src="<?php echo $logo;?>" />
+            </a>
+            <span class="wk-mp-collection-seller-title wk-mp-collection-header-css">
+                <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/profile/shop/'.$shopUrl);?>">
+                    <?php echo $shoptitle?>
+                </a>
+            </span>
+            <?php if ($locsearch) { ?>
+                <div class="wk-mp-collection-seller-title wk-mp-collection-header-bottom">
+                    <a title="<?php echo __('Search') ?>" href="<?php echo  $helper->getRewriteUrl('marketplace/seller/location/shop/'.$shopUrl)."?loc=".$locsearch?>" target="_blank">
+                        <span class="wk-mp-collection-location wk-mp-collection-header-bottom-txt">
+                            <?php echo __($locsearch); ?>
+                        </span>                        
+                    </a>
+                </div>
+            <?php } ?>
+        </div>
+        <div class="wk-mp-collection-header-right-wrapper">
+            <div class="wk-mp-collection-header-right wk-mp-seller-profile-wrapper">
+                <div class="wk-mp-seller-profile-box wk-mp-collection-header-bottom-txt">
+                    <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/profile/shop/'.$shopUrl);?>#about-us">
+                        <?php echo __('About')?>
+                    </a>
+                </div>
+                <div class="wk-mp-seller-profile-box wk-mp-collection-header-bottom-txt">
+                    <a class="askque"><?php echo __('Contact') ?></a>
+                    <div class="ask-que">
+                        <div id="wk-mp-ask-data">
+                            <div class="modals-wrapper">
+                                <aside tabindex="0" data-type="popup" data-role="modal" class="modal-popup modal-slide _inner-scroll wk-mp-model-popup">
+                                    <div tabindex="0" data-role="focusable-start"></div>
+                                    <div data-role="focusable-scope" class="modal-inner-wrap">
+                                        <header class="modal-header">
+                                            <h4 class="modal-title"><?php echo __('Contact Seller') ?></h4>
+                                            <button type="button" data-role="closeBtn" class="action-close wk-close">
+                                                <span><?php echo __('Close') ?></span>
+                                            </button>
+                                            <span  class="wk-clear" ></span>
+                                        </header>
+                                        <?php
+                                        if ($helper->isCustomerLoggedIn()) {
+                                            $buyerName = $helper->getCustomer()->getName();
+                                            $buyerEmail = $helper->getCustomer()->getEmail();
+                                            $readonly = "readonly='readonly'";
+                                        } else {
+                                            $buyerEmail = '';
+                                            $buyerName = '';
+                                            $readonly = '';
+                                        }
+                                        ?>
+                                        <form id="ask-form" method="post" action="#" class="fieldset">
+                                            <div class="modal-body form-list field required">
+                                                <label class="label"><?php echo __('Your Name') ?> :</label>
+                                                <input type="text" name="name" class="queryemail wk-contact_input_fields required-entry" value="<?php echo $buyerName?>" <?php echo $readonly?>/>
+                                                <label class="label"><?php echo __('Your Email') ?> :</label>
+                                                <input type="text" name="email" class="queryemail required-entry validate-email wk-contact_input_fields" value="<?php echo $buyerEmail?>" <?php echo $readonly?>/>
+                                                <label class="label"><?php echo __('Subject') ?> :</label>
+                                                <input type="text" name="subject" class="wk-contact_input_fields required-entry"/>
+                                                <label class="label"><?php echo __('Your Query') ?> :</label>
+                                                <textarea  name="ask" class="queryquestion wk-contact_input_fields required-entry" style="width:100%;"></textarea>
+                                                <input type="hidden" name="seller-id" value="<?php echo $sellerId;?>"/>
+                                                <?php if ($captchenable) { ?>
+                                                    <label class="label"><?php echo __('Please enter desired result') ?></label>
+                                                    <div>
+                                                        <span>
+                                                            <label for="wk-mp-captcha"><span id="wk-mp-captchalable1"><?php echo rand(1,20)?></span> + <span id="wk-mp-captchalable2"><?php echo rand(1,20)?></span> =</label>
+                                                        </span>
+                                                        <input type="text" class="required-entry wk-contact_input_fields" name="wk-mp-captcha" id="wk-mp-captcha" />
+                                                    </div>
+                                                <?php
+                                                }?>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <span class="error"></span>
+                                                <span class="errormail"></span>
+                                                <input type="reset" value="<?php echo __('Reset') ?>" id="resetbtn" class="wk-btn wk-btn_default"/>
+                                                <input type="submit" value="<?php echo __('Submit') ?>" id="askbtn" class="wk-btn wk-btn-primary clickask"/>
+                                                <span class="wk-clear"></span>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div tabindex="0" data-role="focusable-end"></div>
+                                </aside>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php if ($helper->getSellerPolicyApproval()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-collection-header-bottom-txt">
+                        <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/profile/shop/'.$shopUrl);?>#shipping-policy">
+                            <?php echo __('Shipping')?>
+                        </a>
+                    </div>
+                    <div class="wk-mp-seller-profile-box wk-mp-collection-header-bottom-txt">
+                        <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/profile/shop/'.$shopUrl);?>#return-policy">
+                            <?php echo __('Return')?>
+                        </a>
+                    </div>
+                <?php } ?>
+                <?php echo $block->getChildHtml("marketplace_seller_profile_menu")?>
+                <?php if ($partner->getFbActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//facebook.com/<?php echo $block->escapeHtml($partner->getFacebookId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-fb" title="<?php echo __('Check in Facebook')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getTwActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//twitter.com/<?php echo $block->escapeHtml($partner->getTwitterId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-tw" title="<?php echo __('Check in Twitter')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getGplusActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//plus.google.com/<?php echo $block->escapeHtml($partner->getGplusId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-gplus" title="<?php echo __('Check in Google+')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getVimeoActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//vimeo.com/<?php echo $block->escapeHtml($partner->getVimeoId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-vimeo" title="<?php echo __('Check in Vimeo')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getYoutubeActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//www.youtube.com/user/<?php echo $block->escapeHtml($partner->getYoutubeId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-youtube" title="<?php echo __('Check in Youtube')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getInstagramActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//www.instagram.com/<?php echo $block->escapeHtml($partner->getInstagramId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-instagram" title="<?php echo __('Check in Instagram')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                }
+                if ($partner->getPinterestActive()) { ?>
+                    <div class="wk-mp-seller-profile-box wk-mp-profile-icon-wrapper">
+                        <a href="//www.pinterest.com/<?php echo $block->escapeHtml($partner->getPinterestId());?>" target="blank">
+                            <span class="wk-mp-profile-icon-css wk-mp-profile-icon-pinterest" title="<?php echo __('Check in Pinterest')?>"></span>
+                        </a>
+                    </div>
+                <?php 
+                } ?>
+            </div>
+            <div class="wk-mp-collection-header-right wk-mp-collection-count-wrapper">
+                <div class="wk-mp-collection-product-right">
+                    <div class="wk-mp-collection-rating-count-container wk-mp-collection-header-css">
+                        <div class="wk-mp-collection-count-txt">
+                            <a class="store-name" href="<?php echo $helper->getRewriteUrl('marketplace/seller/feedback/shop/'.$shopUrl)?>" title="<?php echo __('Make a Review')?>">
+                                    <?php echo $helper->getSelleRating($sellerId); ?>
+                                </a>
+                            </div>
+                        <div class="wk-mp-collection-header-bottom wk-mp-collection-header-bottom-txt">
+                            <?php echo __('Rating')?>
+                        </div>
+                    </div>
+                    <div class="wk-mp-collection-order-count-container wk-mp-collection-header-css">
+                        <div class="wk-mp-collection-count-txt">
+                            <?php echo $helperOrders->getSellerOrders($sellerId); ?>
+                        </div>
+                        <div class="wk-mp-collection-header-bottom wk-mp-collection-header-bottom-txt">
+                            <?php echo __('Orders')?>
+                        </div>
+                    </div>
+                </div>
+                <div class="wk-mp-collection-product-count-container wk-mp-collection-header-css">
+                    <div class="wk-mp-collection-count-txt">
+                        <a href="<?php echo $helper->getRewriteUrl('marketplace/seller/collection/shop/'.$shopUrl);?>" title="<?php echo __('View Collection')?>">
+                            <?php echo $sellerProductCount?>
+                        </a>
+                    </div>
+                    <div class="wk-mp-collection-header-bottom wk-mp-collection-header-bottom-txt">
+                        <?php echo __('Products')?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        require([
+            "jquery",
+            "mage/mage"
+        ], function($) {
+            var askDataForm = $('#ask-form');
+            askDataForm.mage('validation', {});
+
+            $('body').append($('#wk-mp-ask-data'));
+            $('.askque').click(function() {
+                $('#ask-form input,#ask-form textarea').removeClass('mage-error');
+                $('.page-wrapper').css('opacity','0.4');
+                $('.wk-mp-model-popup').addClass('_show');
+                $('#wk-mp-ask-data').show();
+            });
+            $('.wk-close').click(function() {
+                $('.page-wrapper').css('opacity','1');
+                $('#resetbtn').trigger('click');
+                $('#wk-mp-ask-data').hide();
+                $('#ask-form .validation-failed').each(function() {
+                    $(this).removeClass('validation-failed');
+                });
+                $('#ask-form .validation-advice').each(function() {
+                    $(this).remove();
+                });
+            });
+            $('#askbtn').click(function() {
+                if (askDataForm.valid()!=false) {
+                    var thisthis = $(this);
+                    if (thisthis.hasClass("clickask")) {
+                        <?php if ($captchenable) { ?>
+                            var total = parseInt($('#wk-mp-captchalable1').text()) + parseInt($('#wk-mp-captchalable2').text());
+                            var wk_mp_captcha = $('#wk-mp-captcha').val();
+                            if (total != wk_mp_captcha) {
+                                $('#wk-mp-captchalable1').text(Math.floor((Math.random()*10)+1));
+                                $('#wk-mp-captchalable2').text(Math.floor((Math.random()*100)+1));
+                                $('#wk-mp-captcha').val('');
+                                $('#wk-mp-captcha').addClass('mage-error');
+                                $(this).addClass('mage-error');
+                                $('#ask_form .errormail').text("<?php echo __(' Wrong verification number. ') ?>").slideDown('slow').delay(2000).slideUp('slow');
+                            } else {
+                                thisthis.removeClass('clickask');
+                                $('#wk-mp-ask-data').addClass('mail-procss');
+                                $.ajax({
+                                    url:'<?php echo $block->getUrl("marketplace/seller/sendmail", ["_secure" => $this->getRequest()->isSecure()]) ?>',
+                                    data:$('#ask-form').serialize(),
+                                    type:'post',
+                                    dataType:'json',
+                                    success:function(d) {
+                                        thisthis.addClass('clickask');
+                                        $('#wk-mp-ask-data').removeClass('mail-procss')
+                                        alert("<?php echo __('Your mail has been sent.') ?>..");
+                                        $('.wk-close,#resetbtn').trigger('click');
+                                    }
+                                });
+                            }
+                        <?php } else { ?>
+                            thisthis.removeClass('clickask');
+                                $('#wk-mp-ask-data').addClass('mail-procss');
+                                $.ajax({
+                                    url:'<?php echo $block->getUrl("marketplace/seller/sendmail", ["_secure" => $this->getRequest()->isSecure()]) ?>',
+                                    data:$('#ask-form').serialize(),
+                                    type:'post',
+                                    dataType:'json',
+                                    success:function(d) {
+                                        thisthis.addClass('clickask');
+                                        $('#wk-mp-ask-data').removeClass('mail-procss')
+                                        alert("<?php echo __('Your mail has been sent.') ?>..");
+                                        $('.wk-close,#resetbtn').trigger('click');
+                                    }
+                                });
+                        <?php } ?>
+                    }
+                    return false;
+                }
+            });
+        });
+    </script>
+<?php }  ?>

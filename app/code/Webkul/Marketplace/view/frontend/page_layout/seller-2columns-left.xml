@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_Marketplace
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2017 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+-->
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_layout.xsd">
+    <container name="root">
+        <container name="seller.menu.wrapper" before="-" htmlTag="div" htmlClass="wk-mp-menu-wrapper"/>
+        <container name="after.body.start" as="after.body.start" before="-" label="Page Top"/>
+        <container name="seller.page.wrapper" as="seller_page_wrapper" htmlTag="div" htmlClass="wk-mp-page-wrapper">
+            <container name="seller.global.notices" as="seller_global_notices" before="-"/>
+            <container name="seller.header.before.container" before="-" htmlTag="div" htmlClass="wk-mp-page-header-before page-header"/>
+            <container name="seller.header" after="seller.notifications" htmlTag="header" htmlClass="wk-mp-page-header"/>
+            <container name="seller.page.menu" as="seller.page.menu" after="header"/>
+            <container name="seller.main.content" htmlTag="main" htmlId="wk-mp-maincontent" htmlClass="wk-mp-page-main">
+                <container name="seller.columns.top" label="Before Main Columns"/>
+                <container name="seller.columns" htmlTag="div" htmlClass="wk-mp-columns">
+                    <container name="seller.main" label="Main Content Container" htmlTag="div" htmlClass="wk-mp-column wk-mp-main"/>
+                </container>
+            </container>
+            <container name="seller.page.bottom.container" as="seller_page_bottom_container" label="Before Page Footer Container" after="seller.main.content" htmlTag="div" htmlClass="wk-mp-page-bottom"/>
+            <container name="before.body.end" as="before_body_end" after="-" label="Page Bottom"/>
+        </container>
+    </container>
+</layout>
